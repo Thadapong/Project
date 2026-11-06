@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ที่เที่ยวแนะนำแต่ละจังหวัด – เที่ยวด้วยกัน</title>
+<meta name="description" content="รวมจังหวัดท่องเที่ยวยอดนิยม พร้อมที่เที่ยว ช่วงเวลาที่เหมาะ การเดินทาง และงบโดยประมาณ">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:wght@500;700&family=IBM+Plex+Sans+Thai:wght@400;600&display=swap">
+<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/province.css">
+<style>
+/* ปุ่มกรองตามภาค */
+/* รายการที่เที่ยวตามจังหวัด */
+.bk-pv{margin:0 0 22px;scroll-margin-top:12px}
+.bk-pv h3{margin:0 0 4px;font-size:1.15rem;display:flex;flex-wrap:wrap;align-items:baseline;gap:8px}
+.bk-ph{font-weight:700;font-size:1.15rem;color:#e8553a}
+.bk-pv h3 small{font-weight:400;opacity:.75;font-size:.88rem}
+.bk-meta{margin:0 0 8px;font-size:.88rem;opacity:.8}
+.bk-meta a{color:#e8553a}
+.bk-spots{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.bk-spot{border:1.5px solid #d9cdbb;border-radius:12px;background:#fff;padding:10px 14px;display:grid;gap:4px;transition:border-color .15s,box-shadow .15s}
+.bk-spot:hover{border-color:#e8553a}
+.bk-spot.on{border-color:#e8553a;box-shadow:0 0 0 3px rgba(232,85,58,.18)}
+.bk-spot b{color:#2e8b57}
+.bk-spot span{font-size:.92rem;opacity:.9}
+.bk-act{display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:.88rem;margin-top:2px}
+.bk-act a{color:#e8553a;text-decoration:none}
+.bk-empty{padding:18px;text-align:center;opacity:.75}
+@media (prefers-color-scheme:dark){.bk-spot{background:#1e1e1e;border-color:#444}}
+.pk-note{opacity:.75;font-size:.9rem;margin:0 0 10px}
+.pk-pv{margin:14px 0 6px;font-size:1.05rem}
+.pk-pv a{color:inherit}
+.pk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.pk-it{border:1.5px solid #d9cdbb;border-radius:12px;background:#fff;padding:10px 14px;display:grid;gap:4px}
+.pk-it b{color:#2e8b57}
+.pk-it div{display:flex;gap:12px;flex-wrap:wrap;font-size:.88rem;align-items:center}
+.pk-it a{color:#e8553a;text-decoration:none}
+@media (prefers-color-scheme:dark){.pk-it{background:#1e1e1e;border-color:#444}}
+
+/* ป็อปอัพรายละเอียดที่เที่ยว */
+.bk-spot{cursor:pointer}
+.bk-spot:focus-visible{outline:3px solid rgba(232,85,58,.5);outline-offset:2px}
+.bk-hint{font-size:.8rem;opacity:.65}
+.sp-ov{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:16px;padding-top:max(16px,env(safe-area-inset-top));padding-bottom:max(16px,env(safe-area-inset-bottom))}
+.sp-ov.open{display:flex}
+.sp-box{background:#fff;color:#2b2b2b;width:100%;max-width:520px;max-height:86vh;overflow:auto;border-radius:16px;padding:20px 20px 16px;box-shadow:0 12px 40px rgba(0,0,0,.35);position:relative}
+.sp-x{position:absolute;top:8px;right:10px;border:0;background:none;font-size:1.6rem;line-height:1;cursor:pointer;color:inherit;opacity:.6;padding:6px 10px}
+.sp-box h3{margin:0 28px 2px 0;font-size:1.25rem;color:#2e8b57}
+.sp-sub{margin:0 0 12px;font-size:.88rem;opacity:.75}
+.sp-img{width:100%;max-height:200px;object-fit:cover;border-radius:10px;margin:0 0 12px;display:block}
+.sp-p{margin:0 0 10px;font-size:.95rem;line-height:1.6}
+.sp-fact{margin:0 0 10px;font-size:.9rem;padding:8px 12px;border-radius:10px;background:rgba(232,85,58,.08)}
+.sp-src{font-size:.78rem;opacity:.7;margin:0 0 12px}
+.sp-src a{color:#e8553a}
+.sp-load{opacity:.6;font-size:.9rem;margin:0 0 10px}
+.sp-acts{display:flex;gap:10px;flex-wrap:wrap}
+.sp-acts a{flex:1 1 auto;text-align:center;padding:9px 14px;border-radius:10px;border:1.5px solid #e8553a;color:#e8553a;text-decoration:none;font-size:.92rem}
+.sp-acts a.pri{background:#e8553a;color:#fff}
+@media (prefers-color-scheme:dark){.sp-box{background:#1e1e1e;color:#eee}}
+</style>
+</head>
+<body data-page="book">
+<div class="wrap">
+<header><div class="hl"><div class="menu" id="menu"><button type="button" class="mt" id="mt" aria-expanded="false" aria-controls="side" aria-label="เมนู / Menu"><span class="bars"></span></button><nav class="side" id="side" aria-label="เมนูหน้า">
+<a href="index.html" data-t="t1" aria-current="false">หน้าหลัก</a>
+<a href="how.html" data-t="t2" aria-current="false">วิธีใช้</a>
+<a href="book.html" data-t="t3" aria-current="true">จองทริป</a>
+</nav></div><a class="brand" href="index.html" data-t="brand">เที่ยวด้วยกัน</a></div><div class="hr"><a class="nav" href="book.html" data-t="nav">จองทริปของคุณ</a><button type="button" class="lang" id="lang" aria-label="Switch to English">EN</button></div></header>
+
+<main class="pv-wrap">
+<h1 id="h1">ที่เที่ยวแนะนำแต่ละจังหวัด</h1>
+<p class="pv-sub" id="sub">รวมที่เที่ยวแนะนำของแต่ละภาค พร้อมช่วงเวลาที่เหมาะ</p>
+<div id="list"></div>
+<div id="parks"></div>
+</main>
+
+
+<div class="sp-ov" id="spov" role="dialog" aria-modal="true" aria-labelledby="sp-t"><div class="sp-box"><button type="button" class="sp-x" id="spx" aria-label="ปิด / Close">&times;</button><div id="spc"></div></div></div>
+<footer data-t="foot">เที่ยวด้วยกัน – วางแผนทริปกับเพื่อน ฟรี ไม่ต้องสมัครสมาชิก</footer>
+</div>
+<script src="js/site.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/provinces.js"></script>
+<script src="js/provinces-en.js"></script>
+<script src="js/parks-data.js"></script>
+<script>
+(function(){
+ if(typeof I18N==="undefined"){document.getElementById("list").innerHTML='<p class="pv-sub">ไม่พบไฟล์ js/i18n.js / js/i18n.js is missing</p>';return}
+ var $=function(i){return document.getElementById(i)};
+ var ORDER=["ภาคเหนือ","ภาคกลาง","ภาคตะวันออก","ภาคตะวันตก","ภาคตะวันออกเฉียงเหนือ","ภาคใต้"];
+ var ALL="__all__";
+ var cur=ALL;
+ var lastL=null;
+ function esc(s){return String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+
+ function findProvByKey(k){if(typeof PROV==="undefined")return null;for(var i=0;i<PROV.length;i++){if(PROV[i].key===k)return PROV[i]}return null}
+
+ var pkTok=0;
+ function render(L){
+  if(L)lastL=L;L=lastL;
+  var en=(L==="en");
+  var T=function(k){return I18N.t(k)};
+  document.title=T("t1");
+  $("h1").textContent=T("h1");$("sub").textContent=en?"Recommended attractions in every region, with the best time to visit":"รวมที่เที่ยวแนะนำของแต่ละภาค พร้อมช่วงเวลาที่เหมาะ";
+  
+  
+  if(typeof PROV==="undefined"){$("list").innerHTML='<p class="pv-sub">'+T("nodata")+'</p>';return}
+  var groups={},order=ORDER.slice();
+  PROV.forEach(function(p){
+   if(!groups[p.region]){groups[p.region]=[];if(order.indexOf(p.region)<0){order.push(p.region)}}
+   groups[p.region].push(p);
+  });
+  var regions=order.filter(function(r){return groups[r]});
+  if(cur!==ALL&&!groups[cur])cur=ALL;
+  function pname(p){var e=(en&&typeof PROV_EN!=="undefined"&&PROV_EN[p.key])||{};return e.name||p.name}
+  function ptag(p){var e=(en&&typeof PROV_EN!=="undefined"&&PROV_EN[p.key])||{};return e.tag||p.tag}
+
+  /* รายการ: ภาคที่เลือก -> ที่เที่ยวทุกจังหวัดในภาคนั้นเท่านั้น / ทั้งหมด -> การ์ดจังหวัด */
+  if(cur===ALL){
+   $("list").innerHTML=
+    regions.map(function(r){
+     return '<h2 class="pv-region">'+I18N.region(r,L)+'</h2><div class="pv-grid">'+
+      groups[r].map(function(p){
+       return '<a class="pv-item" href="province.html?p='+p.key+'"><b>'+pname(p)+'</b><span>'+ptag(p)+'</span></a>';
+      }).join("")+'</div>';
+    }).join("");
+  }else{
+   $("list").innerHTML='<h2 class="pv-region">'+(en?"Attractions in ":"ที่เที่ยวแนะนำ ")+I18N.region(cur,L)+'</h2>'+
+    groups[cur].map(function(p){
+     var E=(en&&typeof PROV_EN!=="undefined"&&PROV_EN[p.key])||{};
+     var spots=E.spots||p.spots;
+     return '<section class="bk-pv" id="pv-'+p.key+'"><h3><span class="bk-ph">'+pname(p)+'</span><small>'+ptag(p)+'</small></h3>'+
+      '<p class="bk-meta">'+(p.best?(en?"Best time: ":"ช่วงที่เหมาะ: ")+(E.best||p.best)+' · ':'')+'<a href="province.html?p='+p.key+'">'+(en?"Full guide →":"ดูข้อมูลทั้งหมด →")+'</a></p>'+
+      '<ul class="bk-spots">'+spots.map(function(s,i){
+       var o=p.spots[i]||s,url=o[2];
+       var info=url||("https://www.google.com/search?q="+encodeURIComponent("site:tourismthailand.org "+o[0]));
+       var gm="https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(o[0]+" "+p.name);
+       return '<li class="bk-spot" role="button" tabindex="0" data-k="'+p.key+'" data-i="'+i+'"><b>'+s[0]+'</b><span>'+(s[1]||"")+'</span>'+
+        '<div class="bk-act"><span class="bk-hint">'+(en?"Tap for details":"แตะเพื่ออ่านรายละเอียด")+'</span>'+
+        '<a href="'+info+'" target="_blank" rel="noopener">'+(url?(en?"Official site":"เว็บทางการ"):(en?"Info":"ข้อมูล"))+'</a>'+
+        '<a href="'+gm+'" target="_blank" rel="noopener">Google Maps</a></div></li>';
+      }).join("")+'</ul></section>';
+    }).join("");
+  }
+
+  renderParks(L);
+ }
+
+ /* อุทยานแห่งชาติ (ตามภาคที่เลือก) */
+ function renderParks(L){
+  var en=(L==="en"),el=$("parks"),tok=++pkTok;
+  if(typeof loadParks==="undefined"){el.innerHTML="";return}
+  var title=en?"National parks":"อุทยานแห่งชาติ";
+  el.innerHTML='<h2 class="pv-region">'+title+'</h2><p class="pk-note">'+(en?"Loading…":"กำลังโหลดรายชื่ออุทยาน…")+'</p>';
+  loadParks().then(function(list){
+   if(tok!==pkTok)return;
+   var names=null;
+   if(cur!==ALL&&typeof PROV!=="undefined"){names=PROV.filter(function(p){return p.region===cur}).map(function(p){return p.name})}
+   function inRegion(pv){return !names||names.some(function(n){return pv===n||pv.indexOf(n)>=0||n.indexOf(pv)>=0})}
+   var g={};
+   list.forEach(function(p){if(inRegion(p.pv)){(g[p.pv]=g[p.pv]||[]).push(p)}});
+   var pvs=Object.keys(g).sort(function(a,b){return a.localeCompare(b,"th")});
+   if(!pvs.length){el.innerHTML='<h2 class="pv-region">'+title+'</h2><p class="pk-note">'+(en?"No parks found for this region.":"ไม่พบอุทยานในภาคนี้")+'</p>';return}
+   function pkey(n){if(typeof PROV==="undefined")return null;for(var i=0;i<PROV.length;i++){var a=PROV[i].name;if(a===n||n.indexOf(a)>=0||a.indexOf(n)>=0)return PROV[i].key}return null}
+   el.innerHTML='<h2 class="pv-region">'+title+' ('+pvs.reduce(function(a,k){return a+g[k].length},0)+')</h2>'+
+    '<p class="pk-note">'+(en?"Grouped by province. Data from OpenStreetMap.":"จัดกลุ่มตามจังหวัด ข้อมูลจาก OpenStreetMap")+'</p>'+
+    pvs.map(function(k){
+     var key=pkey(k),h=key?'<a href="province.html?p='+key+'">'+k+'</a>':k;
+     return '<h3 class="pk-pv">'+h+' <small>('+g[k].length+')</small></h3><div class="pk-grid">'+g[k].map(function(p){
+      var q=encodeURIComponent(p.n+" "+k);
+      return '<div class="pk-it"><b>'+p.n+'</b><div>'+
+       '<a href="https://www.google.com/maps/search/?api=1&query='+q+'" target="_blank" rel="noopener">Google Maps</a></div></div>';
+     }).join("")+'</div>';
+    }).join("");
+  }).catch(function(){if(tok===pkTok)el.innerHTML='<h2 class="pv-region">'+title+'</h2><p class="pk-note">'+(en?"Could not load parks.":"โหลดรายชื่ออุทยานไม่สำเร็จ")+'</p>'});
+ }
+
+
+ /* ---------- ป็อปอัพรายละเอียดที่เที่ยว ---------- */
+ var ov=$("spov"),spc=$("spc"),spTok=0,spCache={};
+ function closeSpot(){ov.classList.remove("open");document.body.style.overflow="";spTok++}
+ function clip(t,n){
+  t=String(t||"").replace(/\s+/g," ").trim();
+  if(t.length<=n)return t;
+  var c=t.slice(0,n),k=Math.max(c.lastIndexOf(". "),c.lastIndexOf("。"),c.lastIndexOf(" "));
+  return (k>n*0.5?c.slice(0,k):c).replace(/[\s,;]+$/,"")+"…";
+ }
+ function norm(x){return String(x).toLowerCase().replace(/\(.*?\)/g,"").replace(/[\s\-_.,]/g,"")}
+ function wikiLookup(name,prov,lang){
+  var ck=lang+"|"+name+"|"+prov;
+  if(spCache[ck]!==undefined)return Promise.resolve(spCache[ck]);
+  var base="https://"+lang+".wikipedia.org";
+  var q=encodeURIComponent(name+" "+prov);
+  return fetch(base+"/w/api.php?action=query&list=search&srlimit=4&format=json&origin=*&srsearch="+q)
+   .then(function(r){return r.json()})
+   .then(function(d){
+    var hits=(d.query&&d.query.search)||[],n=norm(name);
+    var cand=hits.filter(function(h){var t=norm(h.title);return t&&(t.indexOf(n)>=0||n.indexOf(t)>=0)});
+    if(!cand.length)return null;
+    return fetch(base+"/api/rest_v1/page/summary/"+encodeURIComponent(cand[0].title.replace(/ /g,"_")))
+     .then(function(r){return r.json()})
+     .then(function(j){
+      if(!j||!j.extract||j.type==="disambiguation")return null;
+      return {text:j.extract,img:j.thumbnail&&j.thumbnail.source,url:j.content_urls&&j.content_urls.desktop&&j.content_urls.desktop.page};
+     });
+   }).then(function(v){spCache[ck]=v;return v}).catch(function(){return null});
+ }
+ function openSpot(key,i){
+  var p=findProvByKey(key);if(!p)return;
+  var en=(lastL==="en"),E=(en&&typeof PROV_EN!=="undefined"&&PROV_EN[p.key])||{};
+  var sp=(E.spots||p.spots)[i],o=p.spots[i];if(!sp||!o)return;
+  var pn=(E.name||p.name),best=E.best||p.best,tok=++spTok;
+  var url=o[2];
+  var info=url||("https://www.google.com/search?q="+encodeURIComponent("site:tourismthailand.org "+o[0]));
+  var gm="https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(o[0]+" "+p.name);
+  function base(extra){
+   spc.innerHTML='<h3 id="sp-t">'+sp[0]+'</h3><p class="sp-sub">'+pn+' · '+I18N.region(p.region,lastL)+'</p>'+extra+
+    '<div class="sp-acts"><a class="pri" href="'+gm+'" target="_blank" rel="noopener">Google Maps</a>'+
+    '<a href="'+info+'" target="_blank" rel="noopener">'+(url?(en?"Official site":"เว็บทางการ"):(en?"More info":"ข้อมูลเพิ่มเติม"))+'</a></div>';
+  }
+  var core='<p class="sp-p">'+(sp[1]||"")+'</p>'+(best?'<p class="sp-fact"><b>'+(en?"Best time: ":"ช่วงที่เหมาะ: ")+'</b>'+best+'</p>':'');
+  base(core+'<p class="sp-load">'+(en?"Loading more details…":"กำลังโหลดรายละเอียดเพิ่มเติม…")+'</p>');
+  ov.classList.add("open");document.body.style.overflow="hidden";
+  wikiLookup(en?sp[0]:o[0],en?pn:p.name,en?"en":"th").then(function(w){
+   if(tok!==spTok)return;
+   if(!w){base(core);return}
+   var img=w.img?'<img class="sp-img" alt="" src="'+esc(w.img)+'" loading="lazy">':'';
+   var txt=document.createElement("div");txt.textContent=clip(w.text,420);
+   base(img+core+'<p class="sp-p">'+txt.innerHTML+'</p>'+
+    '<p class="sp-src">'+(en?"Source: ":"ที่มา: ")+'<a href="'+esc(w.url||"#")+'" target="_blank" rel="noopener">Wikipedia</a></p>');
+  });
+ }
+ $("list").addEventListener("click",function(e){
+  if(e.target.closest("a"))return;
+  var li=e.target.closest(".bk-spot");if(li)openSpot(li.getAttribute("data-k"),+li.getAttribute("data-i"));
+ });
+ $("list").addEventListener("keydown",function(e){
+  if(e.key!=="Enter"&&e.key!==" ")return;
+  var li=e.target.closest&&e.target.closest(".bk-spot");
+  if(li&&e.target===li){e.preventDefault();openSpot(li.getAttribute("data-k"),+li.getAttribute("data-i"))}
+ });
+ $("spx").addEventListener("click",closeSpot);
+ ov.addEventListener("click",function(e){if(e.target===ov)closeSpot()});
+ document.addEventListener("keydown",function(e){if(e.key==="Escape")closeSpot()});
+
+ /* ---------- เหตุการณ์ ---------- */
+ I18N.on(render);
+})();
+</script>
+</body>
+</html>
